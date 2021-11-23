@@ -1,7 +1,7 @@
 require 'dry/monads'
 
 class CarDealership
-  include Dry::Monads::Result::Mixin
+  include Dry::Monads[:result]
 
   def initialize
     @available_models = %w[Avalon Camry Corolla Venza]
@@ -9,7 +9,7 @@ class CarDealership
     @nearby_cities = %w[Austin Chicago Seattle]
   end
 
-  def delivery_car(year, model, color, city)
+  def chain_deliver_car(year, model, color, city)
     check_year(year).bind do |_|
       check_model(model).bind do |_|
         check_color(color).bind do |_|
@@ -19,15 +19,19 @@ class CarDealership
         end
       end
     end
-    #
-    # yield check_year(year)
-    # yield check_model(model)
-    # yield check_color(color)
-    # yield check_city(city)
   end
 
+  def deliver_car(year, model, color, city)
+    yield check_year(year)
+    yield check_model(model)
+    yield check_color(color)
+    yield check_city(city)
+  end
+
+  private
+
   def check_year(year)
-    if year.to_i > 2000
+    if year.to_i >= 2000
       Success('Cars of this year are available')
     else
       Failure(:invalid_year)

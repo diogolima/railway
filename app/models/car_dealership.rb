@@ -4,12 +4,12 @@ class CarDealership
   include Dry::Monads[:result]
 
   def initialize
-    @available_models = %w[Avalon Camry Corolla Venza]
+    @available_models = %w[Corolla Yaris Prius RAV4]
     @available_colors = %w[red black blue white]
-    @nearby_cities = %w[Austin Chicago Seattle]
+    @nearby_cities = %w[Berlin Porto Barcelona]
   end
 
-  def chain_deliver_car(year, model, color, city)
+  def deliver_car(year, model, color, city)
     check_year(year).bind do |_|
       check_model(model).bind do |_|
         check_color(color).bind do |_|
@@ -19,13 +19,6 @@ class CarDealership
         end
       end
     end
-  end
-
-  def deliver_car(year, model, color, city)
-    yield check_year(year)
-    yield check_model(model)
-    yield check_color(color)
-    yield check_city(city)
   end
 
   private
@@ -40,7 +33,7 @@ class CarDealership
 
   def check_model(model)
     if @available_models.include?(model)
-      Success('This model is available')
+      return Success('This model is available')
     else
       Failure(:invalid_model)
     end
@@ -58,7 +51,7 @@ class CarDealership
     if @nearby_cities.include?(city)
       Success('This city is nearby and we can deliver')
     else
-      Failure(:invalid_city)
+      Failure(:invalid_deliver_city)
     end
   end
 end
